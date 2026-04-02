@@ -1,9 +1,45 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
-export class Login {}
+export class Login {
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  loginForm = this.fb.group({
+    tenantId: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required]]
+  });
+
+  error: string | null = null;
+  loading = false;
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) return;
+
+    this.loading = true;
+    this.error = null;
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: () => {
+        this.router.navigate(['/portal/dashboard']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = 'Credenciales inválidas o ID de colmado incorrecto.';
+        console.error('Login error:', err);
+      }
+    });
+  }
+}

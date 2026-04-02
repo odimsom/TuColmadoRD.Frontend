@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -28,15 +29,26 @@ export const routes: Routes = [
   {
     path: 'portal',
     loadComponent: () => import('./layouts/portal-layout/portal-layout').then(m => m.PortalLayout),
+    canActivate: [authGuard],
     children: [
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/portal/dashboard/dashboard').then(m => m.Dashboard)
+      },
       {
         path: 'subscription',
         loadComponent: () => import('./features/portal/subscription/subscription').then(m => m.Subscription)
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
       }
     ]
   },
   {
     path: 'pos',
-    loadComponent: () => import('./layouts/pos-layout/pos-layout').then(m => m.PosLayout)
+    loadComponent: () => import('./layouts/pos-layout/pos-layout').then(m => m.PosLayout),
+    canActivate: [authGuard]
   }
 ];
