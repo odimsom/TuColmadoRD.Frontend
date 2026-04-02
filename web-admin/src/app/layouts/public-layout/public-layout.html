@@ -1,0 +1,21 @@
+<div class="min-h-screen flex flex-col bg-base-100">
+  <nav class="navbar bg-base-300 shadow-xl px-8">
+    <div class="flex-1">
+      <a class="text-2xl font-bold text-primary">Synset Solutions | TuColmado</a>
+    </div>
+    <div class="flex-none gap-4">
+      <button class="btn btn-ghost btn-circle" (click)="themeService.toggleTheme()">
+        @if (themeService.currentTheme() === 'tucolmadodark') {
+          <span class="icon-[ic--baseline-light-mode] text-xl text-yellow-400"></span>
+        } @else {
+          <span class="icon-[ic--baseline-dark-mode] text-xl text-slate-800"></span>
+        }
+      </button>
+      <button class="btn btn-ghost" routerLink="/auth/login">Iniciar Sesión</button> 
+      <button class="btn btn-primary" routerLink="/auth/register">Registrarse</button>
+    </div>
+  </nav>
+  <main class="flex-grow flex items-center justify-center p-8"> 
+    <router-outlet></router-outlet> 
+  </main>
+</div>
