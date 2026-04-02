@@ -1,13 +1,13 @@
 ﻿{
     "name":  "web-admin",
-    "version":  "0.0.1-test.1",
+    "version":  "0.0.1-test.2",
     "scripts":  {
                     "ng":  "ng",
                     "start":  "ng serve",
                     "build":  "ng build",
                     "watch":  "ng build --watch --configuration development",
                     "test":  "ng test",
-                    "build:exe":  "npm run build \u0026\u0026 npm run obfuscate \u0026\u0026 Remove-Item -Recurse -Force dist/web-admin/browser \u0026\u0026 Rename-Item dist/web-admin/secured browser \u0026\u0026 electron-builder --win"
+                    "build:exe":  "npm run build \u0026\u0026 npm run obfuscate \u0026\u0026 Remove-Item -Recurse -Force dist/web-admin/browser \u0026\u0026 Rename-Item secured browser -Path dist/web-admin/ \u0026\u0026 electron-builder --win"
                 },
     "private":  true,
     "packageManager":  "npm@11.8.0",
