@@ -52,7 +52,15 @@ jobs:
           $env:RELEASE_TYPE = "test"
           $env:APP_VERSION = "${{ env.APP_VERSION }}"
           $env:TU_COLMADORD_ROOT = "${{ github.workspace }}"
-          ./frontend/scripts/build-desktop.ps1
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+          $scriptPath = Join-Path $env:GITHUB_WORKSPACE "frontend/scripts/build-desktop.ps1"
+          Write-Host "Workspace: $env:GITHUB_WORKSPACE"
+          Write-Host "Script path: $scriptPath"
+          if (-not (Test-Path $scriptPath)) {
+            Write-Error "build-desktop.ps1 not found at $scriptPath"
+            exit 1
+          }
+          & $scriptPath
         shell: pwsh
 
       - name: Create GitHub Release
