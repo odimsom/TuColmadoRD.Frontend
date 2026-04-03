@@ -31,7 +31,8 @@ Write-Host "--- TuColmadoRD Build v$appVersion ---" -ForegroundColor Yellow
 Write-Host "--- 1. Building Angular (Local) ---" -ForegroundColor Cyan
 Set-Location "$FrontendDir/web-admin"
 if (-not (Test-Path "node_modules")) { npm install }
-npx ng build --configuration local --output-path ../dist-desktop --base-href ./
+# Use root base/deploy URLs so chunk files resolve correctly under /auth/login and other deep links.
+npx ng build --configuration local --output-path ../dist-desktop --base-href / --deploy-url /
 
 # 3. Copy dist to wwwroot of the Desktop project
 Write-Host "--- 2. Copying Angular build to Desktop wwwroot ---" -ForegroundColor Cyan
