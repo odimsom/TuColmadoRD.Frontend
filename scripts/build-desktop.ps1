@@ -23,7 +23,9 @@ $package = Get-Content "$ScriptDir/../package.json" | ConvertFrom-Json
 $baseVersion = $package.version
 $suffix = if ($env:RELEASE_TYPE -eq "test") { "-test" } else { "" }
 $appVersion = if ($env:APP_VERSION) { $env:APP_VERSION } else { "$baseVersion$suffix" }
+$appVersionNumeric = if ($env:APP_VERSION_NUMERIC) { $env:APP_VERSION_NUMERIC } else { (($appVersion -replace '-.*$', '') + '.0') }
 $env:APP_VERSION = $appVersion # For Inno Setup
+$env:APP_VERSION_NUMERIC = $appVersionNumeric # For Inno Setup and assembly metadata
 
 Write-Host "--- TuColmadoRD Build v$appVersion ---" -ForegroundColor Yellow
 
@@ -56,8 +58,8 @@ dotnet publish "$BackendDir/src/Presentations/TuColmadoRD.Desktop/TuColmadoRD.De
   --self-contained true `
     -p:PublishSingleFile=false `
     -p:PublishReadyToRun=true `
-  -p:Version=$appVersion `
-  -p:FileVersion=$appVersion `
+  -p:Version=$appVersionNumeric `
+  -p:FileVersion=$appVersionNumeric `
   -p:InformationalVersion=$appVersion `
   --output "$BackendDir/publish/desktop"
 
@@ -67,7 +69,7 @@ Write-Host "✅ Publicacion lista en $BackendDir/publish/desktop" -ForegroundCol
 $inno = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 if (Test-Path $inno) {
     Write-Host "--- 4. Generating Installer v$appVersion ---" -ForegroundColor Cyan
-    & $inno /DAppVersion=$appVersion "$BackendDir/installer/setup.iss"
+  & $inno /DAppVersion=$appVersion /DAppVersionNumeric=$appVersionNumeric "$BackendDir/installer/setup.iss"
     Write-Host "✅ Installer generado en $BackendDir/publish/installer/TuColmadoRD-Setup-v$appVersion.exe" -ForegroundColor Green
 } else {
     Write-Host "⚠️ Inno Setup no encontrado — saltando generación de installer" -ForegroundColor Yellow
