@@ -48,17 +48,17 @@ if (-not $sourceDist) {
 
 Copy-Item "$sourceDist/*" $wwwroot -Recurse -Force
 
-# 4. Publish the .exe self-contained
+# 4. Publish Desktop app (multi-file package)
 Write-Host "--- 3. Publishing .NET Desktop App ---" -ForegroundColor Cyan
 dotnet publish "$BackendDir/src/Presentations/TuColmadoRD.Desktop/TuColmadoRD.Desktop.csproj" `
   --configuration Release `
   --runtime win-x64 `
   --self-contained true `
-  -p:PublishSingleFile=true `
-  -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:PublishSingleFile=false `
+    -p:PublishReadyToRun=true `
   --output "$BackendDir/publish/desktop"
 
-Write-Host "✅ .exe listo en $BackendDir/publish/desktop/TuColmadoRD.Desktop.exe" -ForegroundColor Green
+Write-Host "✅ Publicacion lista en $BackendDir/publish/desktop" -ForegroundColor Green
 
 # 5. Compilar installer con Inno Setup (si está instalado)
 $inno = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
