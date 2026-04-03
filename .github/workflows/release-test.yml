@@ -5,9 +5,14 @@ on:
     tags:
       - 'v*-test'
 
+permissions:
+  contents: write
+
 jobs:
   build-installer:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Frontend
