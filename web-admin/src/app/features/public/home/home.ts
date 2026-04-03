@@ -2,7 +2,7 @@ import { Component, OnInit, AfterViewInit, signal, inject } from '@angular/core'
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OnboardingWizard } from '../../../shared/components/onboarding-wizard/onboarding-wizard';
-import { environment } from '../../../../environments/environment';
+import { DownloadService, DownloadInfo } from '../../../core/services/download.service';
 
 @Component({
   selector: 'app-home',
@@ -13,12 +13,14 @@ import { environment } from '../../../../environments/environment';
 })
 export class Home implements OnInit, AfterViewInit {
   private router = inject(Router);
+  private downloadService = inject(DownloadService);
+
   billingCycle = signal<'monthly' | 'annual'>('monthly');
   
   // Registration Flow State
   registerState = signal<'form' | 'terms' | 'success'>('form');
   acceptedTerms = signal(false);
-  downloadUrl = environment.downloadUrl;
+  downloadInfo = signal<DownloadInfo | null>(null);
 
   stats = [
     { value: 200, label: 'COLMADOS ACTIVOS', current: 0, suffix: '+' },
@@ -27,7 +29,11 @@ export class Home implements OnInit, AfterViewInit {
     { value: 24, label: 'SOPORTE DOMINICANO', current: 0, suffix: '/7' }
   ];
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.downloadService.getLatestTestRelease().subscribe(info => {
+      this.downloadInfo.set(info);
+    });
+  }
 
   ngAfterViewInit() {
     this.initCounters();
