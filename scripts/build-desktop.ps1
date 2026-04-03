@@ -38,7 +38,15 @@ Write-Host "--- 2. Copying Angular build to Desktop wwwroot ---" -ForegroundColo
 $wwwroot = "$BackendDir/src/Presentations/TuColmadoRD.Desktop/wwwroot"
 if (Test-Path $wwwroot) { Remove-Item $wwwroot -Recurse -Force }
 New-Item -ItemType Directory -Path $wwwroot | Out-Null
-Copy-Item "$FrontendDir/dist-desktop/browser/*" $wwwroot -Recurse
+$distBrowser = "$FrontendDir/dist-desktop/browser"
+$distRoot = "$FrontendDir/dist-desktop"
+$sourceDist = if (Test-Path $distBrowser) { $distBrowser } elseif (Test-Path $distRoot) { $distRoot } else { $null }
+
+if (-not $sourceDist) {
+    throw "Angular build output not found. Expected '$distBrowser' or '$distRoot'."
+}
+
+Copy-Item "$sourceDist/*" $wwwroot -Recurse -Force
 
 # 4. Publish the .exe self-contained
 Write-Host "--- 3. Publishing .NET Desktop App ---" -ForegroundColor Cyan
