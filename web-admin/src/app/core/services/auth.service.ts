@@ -14,7 +14,8 @@ export interface AuthUser {
 }
 
 export interface AuthResponse {
-  accessToken: string;
+  token: string;
+  tenantId: string;
   user: AuthUser;
 }
 
@@ -24,40 +25,56 @@ export interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private baseUrl = `${environment.gatewayUrl}/gateway`;
   
   // State
   currentUser = signal<AuthUser | null>(this.getUserFromStorage());
-  token = signal<string | null>(localStorage.getItem('access_token'));
+  token = signal<string | null>(localStorage.getItem('tc_token'));
 
   login(credentials: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/api/auth/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, credentials).pipe(
       tap(res => this.setSession(res))
     );
   }
 
   register(data: any): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/api/auth/register`, data).pipe(
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/register`, data).pipe(
       tap(res => this.setSession(res))
     );
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('tc_token');
+    localStorage.removeItem('tc_user');
+    localStorage.removeItem('tc_tenant');
     this.currentUser.set(null);
     this.token.set(null);
     this.router.navigate(['/auth/login']);
   }
 
+  isAuthenticated(): boolean {
+    const token = this.token();
+    if (!token) return false;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isExpired = Date.now() >= payload.exp * 1000;
+      return !isExpired;
+    } catch {
+      return false;
+    }
+  }
+
   private setSession(authRes: AuthResponse): void {
-    localStorage.setItem('access_token', authRes.accessToken);
-    localStorage.setItem('user', JSON.stringify(authRes.user));
+    localStorage.setItem('tc_token', authRes.token);
+    localStorage.setItem('tc_user', JSON.stringify(authRes.user));
+    localStorage.setItem('tc_tenant', authRes.tenantId);
     this.currentUser.set(authRes.user);
-    this.token.set(authRes.accessToken);
+    this.token.set(authRes.token);
   }
 
   private getUserFromStorage(): AuthUser | null {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem('tc_user');
     return userStr ? JSON.parse(userStr) : null;
   }
 }

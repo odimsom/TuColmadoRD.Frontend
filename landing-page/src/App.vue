@@ -441,7 +441,7 @@ const faqs = [
             © 2026 TuColmado RD. Orgullosamente Dominicano 🇩🇴
           </p>
           <div class="flex items-center gap-4 grayscale-0 opacity-40 hover:opacity-100 transition-opacity">
-            <span class="text-slate-400 text-[10px] uppercase font-black tracking-[0.4em] italic">Rediseñado por</span>
+            <span class="text-slate-400 text-[10px] uppercase font-black tracking-[0.4em] italic">Diseñado por</span>
             <a href="https://synsetsolutions.com" target="_blank" class="flex items-center gap-2 group">
               <span class="text-slate-300 text-[10px] font-black uppercase tracking-[0.3em] group-hover:text-blue-500 transition-colors">Synset Solutions</span>
             </a>
