@@ -29,6 +29,7 @@ export class Register implements OnInit {
   registerForm = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
     businessName: ['', [Validators.required, Validators.minLength(3)]],
+    email: ['', [Validators.required, Validators.email]],
     whatsapp: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{1,14}$/)]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
@@ -57,7 +58,13 @@ export class Register implements OnInit {
     this.state.set('loading');
     this.error.set(null);
 
-    this.authService.register(this.registerForm.value).subscribe({
+    const payload = {
+      tenantName: this.registerForm.value.businessName?.trim() ?? '',
+      email: this.registerForm.value.email?.trim().toLowerCase() ?? '',
+      password: this.registerForm.value.password ?? '',
+    };
+
+    this.authService.register(payload).subscribe({
       next: () => {
         this.state.set('success');
       },

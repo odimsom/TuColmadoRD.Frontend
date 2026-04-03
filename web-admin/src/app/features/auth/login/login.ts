@@ -17,7 +17,6 @@ export class Login {
   private router = inject(Router);
 
   loginForm = this.fb.group({
-    tenantId: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
   });
@@ -37,7 +36,7 @@ export class Login {
       },
       error: (err) => {
         this.loading = false;
-        this.error = 'Credenciales inválidas o ID de colmado incorrecto.';
+        this.error = 'Credenciales inválidas.';
         console.error('Login error:', err);
       }
     });

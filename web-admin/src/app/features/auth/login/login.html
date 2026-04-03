@@ -6,29 +6,24 @@
     </div>
 
     @if (error) {
-      <div class="alert alert-error text-xs py-2 rounded-lg mb-4">
+      <div class="alert alert-error text-xs py-2 rounded-lg mb-4" data-testid="login-error-alert">
         <span>{{ error }}</span>
       </div>
     }
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
-      <div class="form-control w-full">
-        <label class="label"><span class="label-text text-slate-300 text-xs uppercase tracking-wider font-semibold">ID del Colmado</span></label>
-        <input type="text" formControlName="tenantId" placeholder="Ej: 550e8400-e29b-..." class="input bg-[#0f172a] border-white/5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm" />
-      </div>
-
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4" data-testid="login-form">
       <div class="form-control w-full">
         <label class="label"><span class="label-text text-slate-300 text-xs uppercase tracking-wider font-semibold">Correo Electrónico</span></label>
-        <input type="email" formControlName="email" placeholder="tu@colmado.com" class="input bg-[#0f172a] border-white/5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm" />
+        <input type="email" formControlName="email" placeholder="tu@colmado.com" class="input bg-[#0f172a] border-white/5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm" data-testid="login-email" />
       </div>
 
       <div class="form-control w-full">
         <label class="label"><span class="label-text text-slate-300 text-xs uppercase tracking-wider font-semibold">Contraseña</span></label>
-        <input type="password" formControlName="password" placeholder="••••••••" class="input bg-[#0f172a] border-white/5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm" />
+        <input type="password" formControlName="password" placeholder="••••••••" class="input bg-[#0f172a] border-white/5 focus:border-primary focus:ring-1 focus:ring-primary w-full transition-all text-sm" data-testid="login-password" />
       </div>
 
       <div class="card-actions mt-8">
-        <button type="submit" [disabled]="loginForm.invalid || loading" class="btn btn-primary w-full border-none shadow-lg shadow-blue-500/20">
+        <button type="submit" [disabled]="loginForm.invalid || loading" class="btn btn-primary w-full border-none shadow-lg shadow-blue-500/20" data-testid="login-submit-btn">
           @if (loading) {
             <span class="loading loading-spinner loading-sm"></span>
           } @else {

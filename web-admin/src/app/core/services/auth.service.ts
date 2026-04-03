@@ -14,8 +14,9 @@ export interface AuthUser {
 }
 
 export interface AuthResponse {
-  token: string;
-  tenantId: string;
+  token?: string;
+  accessToken?: string;
+  tenantId?: string;
   user: AuthUser;
 }
 
@@ -66,11 +67,20 @@ export class AuthService {
   }
 
   private setSession(authRes: AuthResponse): void {
-    localStorage.setItem('tc_token', authRes.token);
+    const token = authRes.token ?? authRes.accessToken;
+    const tenantId = authRes.tenantId ?? authRes.user?.tenantId;
+
+    if (!token) {
+      throw new Error('AUTH_TOKEN_MISSING');
+    }
+
+    localStorage.setItem('tc_token', token);
     localStorage.setItem('tc_user', JSON.stringify(authRes.user));
-    localStorage.setItem('tc_tenant', authRes.tenantId);
+    if (tenantId) {
+      localStorage.setItem('tc_tenant', tenantId);
+    }
     this.currentUser.set(authRes.user);
-    this.token.set(authRes.token);
+    this.token.set(token);
   }
 
   private getUserFromStorage(): AuthUser | null {
