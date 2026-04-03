@@ -56,6 +56,9 @@ dotnet publish "$BackendDir/src/Presentations/TuColmadoRD.Desktop/TuColmadoRD.De
   --self-contained true `
     -p:PublishSingleFile=false `
     -p:PublishReadyToRun=true `
+  -p:Version=$appVersion `
+  -p:FileVersion=$appVersion `
+  -p:InformationalVersion=$appVersion `
   --output "$BackendDir/publish/desktop"
 
 Write-Host "✅ Publicacion lista en $BackendDir/publish/desktop" -ForegroundColor Green
