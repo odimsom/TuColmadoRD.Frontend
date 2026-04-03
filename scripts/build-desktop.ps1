@@ -56,16 +56,21 @@ dotnet publish "$BackendDir/src/Presentations/TuColmadoRD.Desktop/TuColmadoRD.De
   --self-contained true `
   -p:PublishSingleFile=true `
   -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:ExcludeAppSettingsFromPublish=true `
+    -p:ErrorOnDuplicatePublishOutputFiles=false `
   --output "$BackendDir/publish/desktop"
 
-Write-Host "✅ .exe listo en $BackendDir/publish/desktop/TuColmadoRD.Desktop.exe" -ForegroundColor Green
+Write-Host "EXE listo en $BackendDir/publish/desktop/TuColmadoRD.Desktop.exe" -ForegroundColor Green
 
-# 5. Compilar installer con Inno Setup (si está instalado)
+# 5. Compilar installer con Inno Setup (si esta instalado)
 $inno = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 if (Test-Path $inno) {
     Write-Host "--- 4. Generating Installer v$appVersion ---" -ForegroundColor Cyan
     & $inno /DAppVersion=$appVersion "$BackendDir/installer/setup.iss"
-    Write-Host "✅ Installer generado en $BackendDir/publish/installer/TuColmadoRD-Setup-v$appVersion.exe" -ForegroundColor Green
+    if ($LASTEXITCODE -ne 0) {
+        throw "Inno Setup failed with exit code $LASTEXITCODE"
+    }
+    Write-Host "Installer generado en $BackendDir/publish/installer/TuColmadoRD-Setup-v$appVersion.exe" -ForegroundColor Green
 } else {
-    Write-Host "⚠️ Inno Setup no encontrado — saltando generación de installer" -ForegroundColor Yellow
+    Write-Host "Inno Setup no encontrado - saltando generacion de installer" -ForegroundColor Yellow
 }
