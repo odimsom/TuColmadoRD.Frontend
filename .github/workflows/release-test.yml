@@ -3,17 +3,23 @@ name: Build & Release Test
 on:
   push:
     tags:
-      - 'v*-test'      # dispara solo con tags tipo v0.1.0-test
+      - 'v*-test'
 
 jobs:
   build-installer:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Frontend
         uses: actions/checkout@v4
         with:
-          submodules: true
+          path: frontend
+
+      - name: Checkout Backend (TuColmadoRD)
+        uses: actions/checkout@v4
+        with:
+          repository: odimsom/TuColmadoRD
+          path: backend
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -23,15 +29,14 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x' # Using .NET 10 as confirmed earlier
+          dotnet-version: '10.0.x'
 
       - name: Install Angular CLI
         run: npm install -g @angular/cli
 
       - name: Install frontend dependencies
-        run: |
-          cd web-admin
-          npm ci
+        working-directory: ./frontend/web-admin
+        run: npm ci
 
       - name: Set version from tag
         run: |
@@ -44,7 +49,8 @@ jobs:
         run: |
           $env:RELEASE_TYPE = "test"
           $env:APP_VERSION = "${{ env.APP_VERSION }}"
-          ./scripts/build-desktop.ps1
+          $env:TU_COLMADORD_ROOT = "${{ github.workspace }}"
+          ./frontend/scripts/build-desktop.ps1
         shell: pwsh
 
       - name: Create GitHub Release
@@ -56,6 +62,9 @@ jobs:
           body: |
             ## ⚠️ Versión de Prueba — NO para producción
             
+            ### Qué incluye esta versión
+            - Build automatizado con assets correctos (.exe)
+            
             ### Cómo instalar
             1. Descargar el archivo `.exe` de abajo
             2. Ejecutar como administrador
@@ -63,6 +72,6 @@ jobs:
             
             **Soporte:** https://wa.me/18296932458
           files: |
-            TuColmadoRD/publish/installer/TuColmadoRD-Setup-v${{ env.APP_VERSION }}.exe
+            backend/publish/installer/TuColmadoRD-Setup-v${{ env.APP_VERSION }}.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

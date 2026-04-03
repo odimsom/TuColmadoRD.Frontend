@@ -1,10 +1,25 @@
 # TuColmadoRD Desktop Build Script
 
-$PSScriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$Root = Resolve-Path "$PSScriptRoot/../.."
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+# Default root is sibling of the frontend repo root, but allow override via env var
+# Locally: $Root = C:\Users\Francisco C. Dev\source\repos
+# CI: $Root = D:\a\TuColmadoRD.Frontend\TuColmadoRD.Frontend (if we clone as siblings there)
+$Root = if ($env:TU_COLMADORD_ROOT) { Resolve-Path $env:TU_COLMADORD_ROOT } else { Resolve-Path "$ScriptDir/../.." }
+
+Write-Host "--- Using Root Path: $Root ---" -ForegroundColor Gray
+
+# 0. Detect repository folders (handle local vs CI differences)
+$BackendDir = "$Root/TuColmadoRD"
+$FrontendDir = "$Root/TuColmadoRD.Frontend"
+
+if (-not (Test-Path $BackendDir)) {
+    # Fallback for CI if cloned as 'backend' and 'frontend'
+    $BackendDir = "$Root/backend"
+    $FrontendDir = "$Root/frontend"
+}
 
 # 1. Read version and handle suffix
-$package = Get-Content "$PSScriptRoot/../package.json" | ConvertFrom-Json
+$package = Get-Content "$ScriptDir/../package.json" | ConvertFrom-Json
 $baseVersion = $package.version
 $suffix = if ($env:RELEASE_TYPE -eq "test") { "-test" } else { "" }
 $appVersion = if ($env:APP_VERSION) { $env:APP_VERSION } else { "$baseVersion$suffix" }
@@ -14,36 +29,35 @@ Write-Host "--- TuColmadoRD Build v$appVersion ---" -ForegroundColor Yellow
 
 # 2. Build Angular with configuration 'local'
 Write-Host "--- 1. Building Angular (Local) ---" -ForegroundColor Cyan
-Set-Location "$Root/src/TuColmadoRD.Frontend/web-admin"
+Set-Location "$FrontendDir/web-admin"
 if (-not (Test-Path "node_modules")) { npm install }
 npx ng build --configuration local --output-path ../dist-desktop
 
 # 3. Copy dist to wwwroot of the Desktop project
 Write-Host "--- 2. Copying Angular build to Desktop wwwroot ---" -ForegroundColor Cyan
-$wwwroot = "$Root/src/Presentations/TuColmadoRD.Desktop/wwwroot"
+$wwwroot = "$BackendDir/src/Presentations/TuColmadoRD.Desktop/wwwroot"
 if (Test-Path $wwwroot) { Remove-Item $wwwroot -Recurse -Force }
 New-Item -ItemType Directory -Path $wwwroot | Out-Null
-Copy-Item "$Root/src/TuColmadoRD.Frontend/dist-desktop/browser/*" $wwwroot -Recurse
+Copy-Item "$FrontendDir/dist-desktop/browser/*" $wwwroot -Recurse
 
 # 4. Publish the .exe self-contained
 Write-Host "--- 3. Publishing .NET Desktop App ---" -ForegroundColor Cyan
-Set-Location $Root
-dotnet publish src/Presentations/TuColmadoRD.Desktop/TuColmadoRD.Desktop.csproj `
+dotnet publish "$BackendDir/src/Presentations/TuColmadoRD.Desktop/TuColmadoRD.Desktop.csproj" `
   --configuration Release `
   --runtime win-x64 `
   --self-contained true `
   -p:PublishSingleFile=true `
   -p:IncludeNativeLibrariesForSelfExtract=true `
-  --output ./publish/desktop
+  --output "$BackendDir/publish/desktop"
 
-Write-Host "✅ .exe listo en ./publish/desktop/TuColmadoRD.Desktop.exe" -ForegroundColor Green
+Write-Host "✅ .exe listo en $BackendDir/publish/desktop/TuColmadoRD.Desktop.exe" -ForegroundColor Green
 
 # 5. Compilar installer con Inno Setup (si está instalado)
 $inno = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 if (Test-Path $inno) {
     Write-Host "--- 4. Generating Installer v$appVersion ---" -ForegroundColor Cyan
-    & $inno /DAppVersion=$appVersion "$Root/installer/setup.iss"
-    Write-Host "✅ Installer generado en ./publish/installer/TuColmadoRD-Setup-v$appVersion.exe" -ForegroundColor Green
+    & $inno /DAppVersion=$appVersion "$BackendDir/installer/setup.iss"
+    Write-Host "✅ Installer generado en $BackendDir/publish/installer/TuColmadoRD-Setup-v$appVersion.exe" -ForegroundColor Green
 } else {
     Write-Host "⚠️ Inno Setup no encontrado — saltando generación de installer" -ForegroundColor Yellow
 }
