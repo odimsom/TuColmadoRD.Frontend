@@ -66,9 +66,7 @@
         <div class="animate-in fade-in slide-in-from-bottom-4 duration-500">
           
           <!-- REGISTER FLOW -->
-          @if (true) {
-            
-            <!-- STEP 1: FORM -->
+          <!-- STEP 1: FORM -->
             @if (registerState() === 'form') {
               <div class="space-y-6">
                 <div>
@@ -167,9 +165,9 @@
                        <li class="flex items-center gap-2 text-[0.65rem] text-slate-400"><span class="icon-[ic--baseline-check] text-green-500"></span> Más rápido para cobrar</li>
                     </ul>
 
-                    @if (downloadUrl) {
-                      <a [href]="downloadUrl" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs text-center uppercase tracking-widest transition-all block">
-                        DESCARGAR PARA WINDOWS <span class="icon-[ic--baseline-arrow-forward] text-lg"></span>
+                    @if (downloadInfo(); as info) {
+                      <a [href]="info.downloadUrl" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-xs text-center uppercase tracking-widest transition-all block">
+                        DESCARGAR v{{ info.version }} ({{ info.fileSize }}) <span class="icon-[ic--baseline-arrow-forward] text-lg"></span>
                       </a>
                     } @else {
                       <button class="w-full py-4 bg-white/5 text-slate-500 rounded-xl font-black text-xs uppercase tracking-widest cursor-disabled tooltip" data-tip="La descarga estará disponible muy pronto.">
@@ -188,10 +186,6 @@
                 </div>
               </div>
             }
-          }
-
-          }
-
           <!-- Google Auth -->
           @if (registerState() !== 'success' && registerState() !== 'terms') {
             <div class="relative my-10 text-center">
