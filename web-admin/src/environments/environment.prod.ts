@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  gatewayUrl: 'http://localhost:8080',
+  production: true,
+  gatewayUrl: 'https://api.tucolmadord.com',
   isLocalInstall: false,
   downloadUrl: 'https://github.com/odimsom/TuColmadoRD.Frontend/releases/latest/download/TuColmadoRD-Setup.exe'
 };

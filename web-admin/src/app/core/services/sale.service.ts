@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { GatewayService } from './gateway.service';
 
 export interface SaleSummary {
   id: string;
@@ -25,11 +24,17 @@ export interface PagedSalesResponse {
   providedIn: 'root'
 })
 export class SaleService {
-  private http = inject(HttpClient);
+  private gateway = inject(GatewayService);
 
   getSales(page = 1, pageSize = 10): Observable<PagedSalesResponse> {
-    return this.http.get<PagedSalesResponse>(`${environment.apiUrl}/api/v1/sales`, {
-      params: { page, pageSize }
-    });
+    return this.gateway.get<PagedSalesResponse>('/sales', { page, pageSize });
+  }
+
+  createSale(cmd: any): Observable<any> {
+    return this.gateway.post('/sales', cmd);
+  }
+
+  getCurrentShift(): Observable<any> {
+    return this.gateway.get('/shifts/current');
   }
 }
